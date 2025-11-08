@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTube Music App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Icon untuk kontrol player -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <h1 class="logo">MyTube</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Cari lagu favoritmu...">
+            <button id="searchBtn">Cari</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="results" class="results">
+            <p>Mulai pencarian musik Anda!</p>
+        </div>
+    </main>
+
+    <!-- 1. Sidebar Kanan Bawah (NAVBAR VIEW BARU) -->
+    <div id="rightSidebar" class="right-sidebar">
+        <h4>Antrian Saat Ini</h4>
+        <ul id="queueList">
+            <li>Antrian kosong</li>
+        </ul>
+        <hr style="border-color: #334155;">
+        <button id="navSettings">Pengaturan ⚙️</button>
+    </div>
+    
+    <!-- 2. Player YouTube tersembunyi (audio) -->
+    <div id="player"></div>
+    
+    <!-- 3. Modal (Pop-up) untuk Video & Lirik -->
+    <div id="videoModal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="closeModalBtn" class="modal-close">&times;</button>
+            <div id="modalPlayerContainer">
+                <!-- Player video modal akan dibuat di div ini -->
+                <div id="modalVideoPlayer"></div>
+            </div>
+            <div id="lyricsContainer" class="lyrics-section">
+                <h3>Lirik</h3>
+                <p id="lyricsText">Lirik akan muncul di sini...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 4. Player Bar (Footer) -->
+    <footer id="playerBar" class="player-bar" data-clean-title="">
+        <div id="playerAlbumTrigger" class="player-album" style="cursor: pointer;">
+            <img id="playerArt" src="placeholder.jpg" alt="Album Art">
+            <h4 id="playerTitle">Pilih lagu untuk diputar...</h4>
+        </div>
+<div class="volume-control">
+    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+</div>
+        <div class="player-controls">
+            <button id="prevBtn"><i class="fas fa-backward-step"></i></button>
+            <button id="playPauseBtn"><i class="fas fa-play"></i></button>
+            <button id="nextBtn"><i class="fas fa-forward-step"></i></button>
+        </div>
+    </footer>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <!-- Menggunakan app.js sesuai permintaan user -->
+    <script src="app.js"></script> 
+
+</body>
+</html>
