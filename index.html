@@ -34,17 +34,45 @@
         </div>
     </header>
 
-    <!-- NEW: Kiri Sidebar (Hamburger Menu) -->
-    <div id="leftSidebar" class="left-sidebar glass-effect">
-        <ul class="sidebar-menu">
-            <li id="navTrending" class="ripple-btn"><i class="fas fa-fire"></i> Trending</li>
-            <li id="navPlaylist" class="ripple-btn"><i class="fas fa-list"></i> Playlist</li>
-            <li id="navHistory" class="ripple-btn"><i class="fas fa-history"></i> Riwayat Tontonan</li>
-        </ul>
+    <!-- NEW: Kiri Sidebar (YouTube Style) -->
+    <div id="leftSidebar" class="left-sidebar">
         
-        <!-- Konten Dinamis Sidebar -->
-        <div id="sidebarContent" class="sidebar-content">
-            <!-- Menampilkan Konten History/Playlist/Trending -->
+        <!-- Primary Links -->
+        <ul class="sidebar-menu">
+            <li id="navTrending" class="ripple-btn active"><i class="fas fa-home"></i> Beranda</li>
+            <li class="ripple-btn"><i class="fas fa-play" style="outline: 2px solid currentColor; padding: 2px; border-radius: 4px; font-size: 0.7rem;"></i> Shorts</li>
+        </ul>
+
+        <hr class="sidebar-divider">
+
+        <!-- Subscriptions -->
+        <div class="sidebar-section">
+            <h4 class="sidebar-title">Subscription <i class="fas fa-chevron-right" style="font-size: 0.7rem; margin-left: 5px;"></i></h4>
+            <ul class="sidebar-menu">
+                <li class="ripple-btn"><img src="https://placehold.co/24/1e293b/cbd5e1?text=W" class="channel-icon"> Windah Basudara <span class="live-dot"></span></li>
+                <li class="ripple-btn"><img src="https://placehold.co/24/1e293b/cbd5e1?text=A" class="channel-icon"> Arif muhammad <span class="live-dot"></span></li>
+                <li class="ripple-btn"><img src="https://placehold.co/24/1e293b/cbd5e1?text=H" class="channel-icon"> Hitzeed <span class="live-dot"></span></li>
+                <li class="ripple-btn"><i class="fas fa-chevron-down" style="font-size: 0.9rem;"></i> Tampilkan lebih banyak</li>
+            </ul>
+        </div>
+        
+        <hr class="sidebar-divider">
+
+        <!-- Anda (You) Section -->
+        <div class="sidebar-section">
+            <h4 class="sidebar-title">Anda <i class="fas fa-chevron-right" style="font-size: 0.7rem; margin-left: 5px;"></i></h4>
+            <ul class="sidebar-menu">
+                <li id="navHistory" class="ripple-btn"><i class="fas fa-history"></i> Histori</li>
+                <li id="navPlaylist" class="ripple-btn"><i class="fas fa-list-ul"></i> Playlist</li>
+                <li class="ripple-btn"><i class="far fa-clock"></i> Tonton nanti</li>
+                <li class="ripple-btn"><i class="far fa-thumbs-up"></i> Video yang disukai</li>
+                <li class="ripple-btn"><i class="fas fa-download"></i> Download</li>
+            </ul>
+        </div>
+
+        <!-- Konten Dinamis (Untuk list saat melihat history / playlist detail) -->
+        <div id="sidebarContent" class="sidebar-content" style="display: none;">
+            <!-- Placeholder -->
         </div>
     </div>
 

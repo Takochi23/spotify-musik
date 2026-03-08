@@ -535,61 +535,76 @@ function setActiveNav(selectedNav) {
     selectedNav.classList.add('active');
 }
 
+// State Toggle helper to show dynamic views vs normal menu
+function toggleDynamicSidebar(showDynamic) {
+    // If we want to show dynamic list (like Playlist or History detail)
+    // we can either show it inside the middle container or overlay the whole sidebar content
+    const lists = leftSidebar.querySelectorAll('.sidebar-menu, .sidebar-divider, .sidebar-section');
+    if (showDynamic) {
+        lists.forEach(el => el.style.display = 'none');
+        sidebarContent.style.display = 'block';
+    } else {
+        lists.forEach(el => el.style.display = '');
+        sidebarContent.style.display = 'none';
+        sidebarContent.innerHTML = ''; // reset
+    }
+}
+
 // Event Listeners for Sidebar Tabs
 navTrending.addEventListener('click', () => {
     setActiveNav(navTrending);
-    sidebarContent.innerHTML = '<p style="padding:15px; text-align:center; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
-    // Gunakan fungsi pencarian dengan query statik atau hit API trending
-    // Karena API search normal tidak murni trending, kita spoof dengan query populer
+    toggleDynamicSidebar(false);
     searchVideos("indonesia populer music hits official");
-    // Setelah render di main container, kita juga bisa tampilkan sekilas (misal 5 teratas) di sidebar
-    setTimeout(()=>{
-        renderSidebarList(currentQueue.slice(0, 5), "Tidak ada trending.");
-    }, 1500);
 });
 
 navPlaylist.addEventListener('click', () => {
     setActiveNav(navPlaylist);
+    toggleDynamicSidebar(true);
+    
+    // Header to go back
+    sidebarContent.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 5px; margin-bottom: 10px; border-bottom: 1px solid #3f3f3f;">
+            <span style="font-weight:600;"><i class="fas fa-list-ul"></i> Playlist Saya</span>
+            <button id="closeDynamicBtn" style="background:none; color:white; border:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="dynamicListContainer"></div>
+    `;
+    
+    document.getElementById("closeDynamicBtn").addEventListener('click', () => {
+        navTrending.click(); // go back to home
+    });
+    
+    // Temporary redirect the container
+    const oldContainer = sidebarContent;
+    sidebarContent = document.getElementById("dynamicListContainer");
     renderSidebarList(getPlaylist(), "Playlist kamu masih kosong. Tekan tombol <i class='far fa-heart'></i> pada pemutar.");
+    sidebarContent = oldContainer; // restore global ref
 });
 
 navHistory.addEventListener('click', () => {
     setActiveNav(navHistory);
+    toggleDynamicSidebar(true);
+    
     sidebarContent.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 5px 10px; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1);">
-            <span style="font-size:0.8rem; color:#94a3b8;">Baru saja diputar</span>
-            <button id="clearHistoryBtn" style="background:#e11d48; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer;">Hapus</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 5px; margin-bottom: 10px; border-bottom: 1px solid #3f3f3f;">
+            <span style="font-weight:600;"><i class="fas fa-history"></i> Histori</span>
+            <button id="clearAndCloseBtn" style="background:#e11d48; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer;">Hapus</button>
         </div>
+        <div id="dynamicListContainer"></div>
     `;
     
     // Bind the inner clear history button
-    document.getElementById("clearHistoryBtn").addEventListener('click', () => {
+    document.getElementById("clearAndCloseBtn").addEventListener('click', () => {
         localStorage.removeItem('ytHistory');
-        renderSidebarList([], "Belum ada riwayat tontonan.");
+        const listC = document.getElementById("dynamicListContainer");
+        listC.innerHTML = `<p style="padding:15px; color:#aaa; font-size:0.9rem; text-align:center;">Belum ada riwayat tontonan.</p>`;
     });
     
-    // Render the rest of history
-    const historyItems = loadHistory();
-    const listContainer = document.createElement("div");
-    sidebarContent.appendChild(listContainer);
-    
-    if(historyItems.length === 0){
-        listContainer.innerHTML = `<p style="padding:15px; color:#94a3b8; font-size:0.9rem; text-align:center;">Belum ada riwayat tontonan.</p>`;
-    } else {
-        historyItems.forEach(video => {
-            const div = document.createElement("div");
-            div.className = "sidebar-video-item ripple-btn";
-            div.innerHTML = `
-                <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" onerror="this.onerror=null; this.src='https://placehold.co/60x34/1e293b/cbd5e1';">
-                <h4>${video.snippet.title}</h4>
-            `;
-            div.onclick = () => {
-                currentQueue = [video];
-                playTrack(0);
-            };
-            listContainer.appendChild(div);
-        });
-    }
+    // Temporary redirect the container
+    const oldContainer = sidebarContent;
+    sidebarContent = document.getElementById("dynamicListContainer");
+    renderSidebarList(loadHistory(), "Belum ada riwayat tontonan.");
+    sidebarContent = oldContainer; // restore global
 });
 
 // Init on page load
