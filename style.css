@@ -12,19 +12,20 @@ body {
 }
 
 /* --- Layout & Navbar --- */
-/* --- !! SIDEBAR KIRI (YOUTUBE STYLE) !! --- */
+/* --- !! SIDEBAR KIRI !! --- */
 .left-sidebar {
     position: fixed;
     left: 0;
     top: 60px; /* Di bawah navbar */
     width: 240px;
     height: calc(100vh - 60px - 100px); /* Kurangi navbar dan player */
-    background-color: #0f0f0f !important;
+    /* background-color diatur via .glass-effect */
     z-index: 1000;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     padding-right: 5px;
+    padding-top: 10px;
     transition: left 0.3s ease;
 }
 
@@ -73,7 +74,7 @@ body {
 }
 
 .sidebar-menu li:hover, .sidebar-menu li.active {
-    background-color: #272727;
+    background-color: rgba(255, 255, 255, 0.15); /* More suitable for glass-effect */
 }
 
 .channel-icon {
@@ -127,7 +128,7 @@ body {
 }
 
 .sidebar-video-item:hover {
-    background-color: #272727;
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .sidebar-video-item img {
@@ -374,7 +375,7 @@ body {
         height: 100vh;
         z-index: 2000;
         transition: left 0.3s ease;
-        background-color: #0f0f0f !important;
+        /* background-color diatur via glass-effect */
     }
     /* State for Mobile when toggled open */
     .left-sidebar.open {
