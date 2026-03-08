@@ -1,31 +1,8 @@
 // GANTI DENGAN API KEY ANDA YANG BARU!
 const API_KEY = "AIzaSyC_da1cPftXptl0VRCGn5GlMIfdg6O3m9U"; 
 
-// !! Database Lirik Palsu (Dummy) !!
-const dummyLyricsDB = {
-    "SLOW DANCING IN THE DARK": 
-`I don't want a friend (just one more)
-I just want my lover
-(Pause)
-(Lookin' at me)
-(I don't want a friend)
-...
-(Lirik lengkap demo - Joji)`,
-
-    "Die For You": 
-`I'm passing out
-And it's turning me inside out
-(Inside out)
-...
-(Lirik lengkap demo - Joji)`,
-
-    "Past Won't Leave My Bed":
-`The past won't leave my bed (my bed)
-I've been sleepin' with the dead (the dead)
-The past won't leave my bed (my bed)
-...
-(Lirik lengkap demo - Joji)`
-};
+// Database lirik palsu telah dihapus.
+// Lirik sekarang akan diambil secara otomatis via API public.
 
 // === Variabel Global ===
 let player;         // Player audio (tersembunyi)
@@ -53,7 +30,19 @@ const playerAlbumTrigger = document.getElementById("playerAlbumTrigger");
 const rightSidebar = document.getElementById("rightSidebar");
 const queueList = document.getElementById("queueList");
 
-
+// !! BARU: Auth Elements !!
+const authModal = document.getElementById("authModal");
+const closeAuthModalBtn = document.getElementById("closeAuthModalBtn");
+const authForm = document.getElementById("authForm");
+const authTitle = document.getElementById("authTitle");
+const toggleAuthMode = document.getElementById("toggleAuthMode");
+const authUsername = document.getElementById("authUsername");
+const authPassword = document.getElementById("authPassword");
+const authPreference = document.getElementById("authPreference");
+const registerFields = document.getElementById("registerFields");
+const authBtn = document.getElementById("authBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const userGreeting = document.getElementById("userGreeting");
 // === Inisialisasi YouTube Player ===
 function onYouTubeIframeAPIReady() {
     console.log("YouTube API is Ready");
@@ -97,10 +86,19 @@ volumeSlider.addEventListener("input", () => {
 
 // === Fungsi Pencarian ===
 async function searchVideos() {
-    const query = searchInput.value;
-    if (!query) return; // Tidak perlu alert
-    results.innerHTML = "<p>Mencari...</p>";
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=24&q=${query} audio&key=${API_KEY}`;
+    const queryBase = searchInput.value;
+    if (!queryBase) return; // Tidak perlu alert
+    
+    // Adjust algorithm parameter based on logged in user's preference
+    let algorithmAddon = "";
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.preference) {
+        algorithmAddon = ` ${currentUser.preference}`;
+    }
+    
+    const query = `${queryBase}${algorithmAddon}`;
+    
+    results.innerHTML = "<p>Mencari...</p>";
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)} audio&key=${API_KEY}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
@@ -132,10 +130,10 @@ function displayResults(items) {
         results.innerHTML = "<p>Tidak ada hasil ditemukan.</p>";
         return;
     }
-    items.forEach((video, index) => {
-        const div = document.createElement("div");
-        div.className = "video-card";
-        div.innerHTML = `
+    items.forEach((video, index) => {
+        const div = document.createElement("div");
+        div.className = "video-card glass-effect ripple-btn";
+        div.innerHTML = `
             <img src="${video.snippet.thumbnails.medium.url}" class="thumbnail" alt="${video.snippet.title}" onerror="this.onerror=null; this.src='https://placehold.co/250x140/1e293b/cbd5e1?text=No+Image';">
             <h4>${video.snippet.title}</h4>
         `;
@@ -224,18 +222,31 @@ function openModal() {
     // Tampilkan modal
     videoModal.style.display = 'flex';
     
-    // Logika Pencarian Lirik
-    const lyricsText = document.getElementById('lyricsText');
-    const cleanTitle = playerBar.dataset.cleanTitle;
-    let foundLyric = "Maaf, lirik untuk lagu ini belum tersedia di database demo.";
+    // Logika Pencarian Lirik Otomatis (Auto Lyrics)
+    const lyricsText = document.getElementById('lyricsText');
+    const cleanTitle = playerTitle.innerText || playerBar.dataset.cleanTitle;
+    lyricsText.innerHTML = "Mencari lirik otomatis...";
+    
+    // Menggunakan API public kesediaan lirik (contoh: lrclib.net as it's free and doesn't require keys for basic search)
+    // We need to clean the track title from typical YouTube suffixes like "Official Video", etc.
+    const searchTitle = cleanTitle.replace(/\[.*?\]|\(.*?\)|official|video|audio|explicit|music|lyric|lyrics/gi, '').trim();
 
-    for (const key in dummyLyricsDB) {
-        if (cleanTitle.includes(key.toUpperCase())) { // Ubah kunci lirik menjadi uppercase untuk perbandingan yang lebih baik
-            foundLyric = dummyLyricsDB[key];
-            break;
-        }
-    }
-    lyricsText.innerHTML = foundLyric.replace(/\n/g, '<br>');
+    fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(searchTitle)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0 && (data[0].syncedLyrics || data[0].plainLyrics)) {
+                const lyrics = data[0].syncedLyrics || data[0].plainLyrics;
+                // Basic cleaning if it's synced lyrics (remove timestamps)
+                const cleanLyrics = lyrics.replace(/\[\d{2}:\d{2}\.\d{2}\]/g, '');
+                lyricsText.innerHTML = cleanLyrics.replace(/\n/g, '<br>');
+            } else {
+                lyricsText.innerHTML = "Lirik otomatis tidak ditemukan untuk lagu ini.";
+            }
+        })
+        .catch(err => {
+            console.error("Error fetching lyrics:", err);
+            lyricsText.innerHTML = "Gagal mengambil lirik otomatis. Silakan coba lagi nanti.";
+        });
 
     // --- Logika player modal ---
     if (!modalPlayer) {
@@ -309,3 +320,147 @@ videoModal.addEventListener('click', (event) => {
 document.getElementById("navSettings").addEventListener('click', () => {
     alert("Fungsi pengaturan belum diimplementasikan.");
 });
+
+// === MOCK AUTHENTICATION & SECURITY LOGIC ===
+let isRegisterMode = false;
+let currentUser = null;
+
+// Load users and current user from localStorage
+const loadUsers = () => JSON.parse(localStorage.getItem('ytUsers')) || {};
+const saveUsers = (users) => localStorage.setItem('ytUsers', JSON.stringify(users));
+
+// Basic Mock hashing to simulate security
+const mockHash = (str) => btoa(str).split('').reverse().join('');
+
+function checkAuth() {
+    const session = localStorage.getItem('ytSession');
+    if (session) {
+        currentUser = JSON.parse(session);
+        if (userGreeting) {
+            userGreeting.innerText = `Halo, ${currentUser.username}`;
+            userGreeting.style.display = 'inline-block';
+        }
+        if (authBtn) authBtn.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = 'inline-block';
+    } else {
+        currentUser = null;
+        if (userGreeting) userGreeting.style.display = 'none';
+        if (authBtn) authBtn.style.display = 'inline-block';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+    }
+}
+
+if (authBtn) {
+    authBtn.addEventListener('click', () => {
+        authModal.style.display = 'flex';
+    });
+}
+
+if (closeAuthModalBtn) {
+    closeAuthModalBtn.addEventListener('click', () => {
+        authModal.style.display = 'none';
+    });
+}
+
+if (toggleAuthMode) {
+    toggleAuthMode.addEventListener('click', (e) => {
+        e.preventDefault();
+        isRegisterMode = !isRegisterMode;
+        if (isRegisterMode) {
+            authTitle.innerText = "Register";
+            toggleAuthMode.innerText = "Sudah punya akun? Login";
+            registerFields.style.display = 'block';
+        } else {
+            authTitle.innerText = "Login";
+            toggleAuthMode.innerText = "Belum punya akun? Daftar";
+            registerFields.style.display = 'none';
+        }
+    });
+}
+
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('ytSession');
+        checkAuth();
+        alert('Anda berhasil logout.');
+    });
+}
+
+if (authForm) {
+    authForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = authUsername.value.trim();
+        const password = mockHash(authPassword.value);
+        const preference = authPreference.value;
+
+        const users = loadUsers();
+
+        if (isRegisterMode) {
+            if (users[username]) {
+                alert('Username sudah terdaftar!');
+                return;
+            }
+            users[username] = { password, preference };
+            saveUsers(users);
+            alert('Registrasi berhasil! Silakan login.');
+            isRegisterMode = false;
+            authTitle.innerText = "Login";
+            toggleAuthMode.innerText = "Belum punya akun? Daftar";
+            registerFields.style.display = 'none';
+            authPassword.value = "";
+        } else {
+            if (users[username] && users[username].password === password) {
+                // Login sukses
+                localStorage.setItem('ytSession', JSON.stringify({ username, preference: users[username].preference }));
+                checkAuth();
+                authModal.style.display = 'none';
+                alert('Login berhasil!');
+            } else {
+                alert('Username atau password salah!');
+            }
+        }
+    });
+}
+
+// Run auth check on load
+checkAuth();
+
+// === LIQUID RIPPLE EFFECT LOGIC ===
+document.addEventListener('click', function (e) {
+    const rippleBtn = e.target.closest('.ripple-btn');
+    if (rippleBtn) {
+        createRipple(e, rippleBtn);
+    }
+});
+
+function createRipple(event, button) {
+    const circle = document.createElement('span');
+    const diameter = Math.max(button.clientWidth, button.clientHeight);
+    const radius = diameter / 2;
+
+    const rect = button.getBoundingClientRect();
+    // Offset click position somewhat due to fixed button positioning
+    const clientX = event.clientX;
+    const clientY = event.clientY;
+    
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${clientX - rect.left - radius}px`;
+    circle.style.top = `${clientY - rect.top - radius}px`;
+    circle.classList.add('ripple-span');
+
+    const ripple = button.querySelector('.ripple-span');
+    if (ripple) {
+        ripple.remove();
+    }
+
+    button.appendChild(circle);
+}
+
+// Close Auth Modal on Outside Click
+if (authModal) {
+    authModal.addEventListener('click', (event) => {
+        if (event.target === authModal) {
+            authModal.style.display = 'none';
+        }
+    });
+}

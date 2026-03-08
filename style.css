@@ -3,7 +3,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    background: #0f172a;
+    background: transparent;
     font-family: 'Poppins', sans-serif;
     color: #e2e8f0;
     overflow-x: hidden;
@@ -356,4 +356,169 @@ body {
 #volumeSlider {
     width: 100%;
     cursor: pointer;
+}
+
+/* --- NEW: Animated Fire Background --- */
+.animated-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background: linear-gradient(135deg, #090a0f, #1a0f1d, #251214, #0f172a);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    overflow: hidden;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.fire-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    animation: floatOrb 10s infinite alternate ease-in-out;
+    mix-blend-mode: screen;
+}
+
+.orb-1 {
+    width: 40vw;
+    height: 40vw;
+    background: rgba(255, 68, 0, 0.4);
+    top: 5%;
+    left: 5%;
+    animation-duration: 12s;
+}
+
+.orb-2 {
+    width: 45vw;
+    height: 45vw;
+    background: rgba(138, 43, 226, 0.3);
+    bottom: 15%;
+    right: 5%;
+    animation-duration: 15s;
+    animation-delay: -5s;
+}
+
+.orb-3 {
+    width: 35vw;
+    height: 35vw;
+    background: rgba(255, 140, 0, 0.3);
+    top: 45%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+    animation-duration: 10s;
+    animation-delay: -2s;
+}
+
+@keyframes floatOrb {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, -50px) scale(1.1); }
+}
+
+/* --- NEW: Glassmorphism Effect --- */
+.glass-effect {
+    background: rgba(30, 41, 59, 0.35) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.video-card.glass-effect, .right-sidebar.glass-effect, .modal-content.glass-effect {
+    background: rgba(30, 41, 59, 0.45) !important;
+}
+
+/* --- NEW: Liquid Ripple Click Effect --- */
+.ripple-btn {
+    position: relative;
+    overflow: hidden !important;
+    transform: translate3d(0, 0, 0); /* Force hardware accel */
+}
+
+.ripple-span {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-anim 600ms linear;
+    background-color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+}
+
+@keyframes ripple-anim {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Auth Modal & Misc UI */
+.user-actions {
+    display: flex;
+    align-items: center;
+}
+.login-btn {
+    padding: 8px 16px;
+    background: rgba(99, 102, 241, 0.4);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+.login-btn:hover {
+    background: rgba(99, 102, 241, 0.8);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.glass-input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+.glass-input:focus {
+    border-color: #818cf8;
+    background: rgba(0, 0, 0, 0.5);
+}
+.glass-input option {
+    background: #1e293b;
+    color: white;
+}
+.full-btn {
+    padding: 12px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #6366f1, #c084fc);
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    opacity: 0.9;
+}
+.full-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+    opacity: 1;
+}
+.auth-modal-content {
+    max-width: 400px !important;
+    height: auto !important;
 }
