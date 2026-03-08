@@ -12,9 +12,93 @@ body {
 }
 
 /* --- Layout & Navbar --- */
+/* --- !! SIDEBAR KIRI (TRENDING, PLAYLIST, HISTORY) !! --- */
+.left-sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px; /* Di bawah navbar */
+    width: 250px;
+    height: calc(100vh - 60px - 120px); /* Kurangi tinggi navbar dan player bar */
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu li {
+    padding: 15px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #cbd5e1;
+}
+
+.sidebar-menu li:hover {
+    background-color: rgba(99, 102, 241, 0.3);
+    color: white;
+}
+
+.sidebar-menu li.active {
+    background-color: rgba(99, 102, 241, 0.5);
+    color: white;
+    border-left: 4px solid #818cf8;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.sidebar-video-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-bottom: 10px;
+}
+
+.sidebar-video-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.sidebar-video-item img {
+    width: 60px;
+    height: 34px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.sidebar-video-item h4 {
+    font-size: 0.8rem;
+    font-weight: 400;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #e2e8f0;
+}
+
+/* Adjust Main Container based on sidebar width */
 .container { 
-    max-width: 1200px; 
-    margin: 20px auto; 
+    max-width: calc(100% - 290px); 
+    margin: 20px 20px 20px 270px; /* Offset for left sidebar */
     padding: 0 20px; 
 }
 
@@ -125,27 +209,12 @@ body {
     padding: 12px; 
     font-size: 0.9rem; 
     font-weight: 400;
-    white-space: nowrap; 
-    overflow: hidden; 
+    white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* Hover styles untuk Horizontal Scroll History */
-#historyResults {
-    scrollbar-width: thin;
-    scrollbar-color: #6366f1 #1e293b;
-}
-#historyResults::-webkit-scrollbar {
-    height: 8px;
-}
-#historyResults::-webkit-scrollbar-track {
-    background: #1e293b;
-    border-radius: 4px;
-}
-#historyResults::-webkit-scrollbar-thumb {
-    background-color: #6366f1;
-    border-radius: 4px;
-}
+/* /* Hover styles untuk Horizontal Scroll History telah dihapus */
 
 /* --- Player Bar (Diperbesar) --- */
 .player-bar {
@@ -153,10 +222,10 @@ body {
     align-items: center;
     justify-content: space-between;
     position: fixed;
-    bottom: 0; 
-    left: 0; 
+    bottom: 0;
+    left: 0;
     width: 100%;
-    height: 120px; 
+    height: 120px;
     background: #181818;
     border-top: 1px solid #282828;
     padding: 0 30px;
@@ -164,15 +233,15 @@ body {
 }
 
 .player-album {
-    display: flex; 
+    display: flex;
     align-items: center;
     gap: 20px;
     width: 30%;
 }
 
 #playerArt {
-    width: 80px; 
-    height: 80px; 
+    width: 80px;
+    height: 80px;
     border-radius: 6px;
     object-fit: cover;
 }
@@ -181,109 +250,150 @@ body {
     font-size: 1rem;
     font-weight: 500;
     color: #fff;
-    white-space: nowrap; 
-    overflow: hidden; 
+    white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .player-controls {
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     justify-content: center;
     gap: 25px;
     width: 40%;
 }
 
 .player-controls button {
-    background: none; 
-    border: none; 
+    background: none;
+    border: none;
     color: #b3b3b3;
     cursor: pointer;
     font-size: 1.4rem;
     transition: color 0.2s ease;
 }
 
-.player-controls button:hover { 
-    color: #fff; 
-}
-
-#playPauseBtn {
-    font-size: 2.5rem; 
+.player-controls button:hover {
     color: #fff;
 }
 
-#playPauseBtn:hover { 
-    transform: scale(1.1); 
+#playPauseBtn {
+    font-size: 2.5rem;
+    color: #fff;
 }
 
-.player-extra { 
-    width: 30%; 
+#playPauseBtn:hover {
+    transform: scale(1.1);
 }
 
-/* --- !! SIDEBAR KANAN BAWAH (NAVBAR VIEW) !! --- */
-.right-sidebar {
+.player-extra {
+    width: 30%;
+}
+
+/* --- NEW: Left Sidebar (Sliding Menu) --- */
+.left-sidebar {
     position: fixed;
-    right: 20px;
-    bottom: 140px;
-    width: 250px;
-    max-height: 400px;
-    background: #1e293b;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-    z-index: 1900;
+    top: 0;
+    left: -280px; /* Hidden by default */
+    width: 280px;
+    height: 100vh;
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 2000;
     overflow-y: auto;
-    display: none;
-    border: 1px solid #334155;
-    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    transition: left 0.3s ease-in-out;
 }
 
-.right-sidebar h4 {
-    color: #818cf8;
-    margin-bottom: 10px;
-    border-bottom: 1px dashed #334155;
-    padding-bottom: 5px;
+.left-sidebar.open {
+    left: 0;
 }
 
-#queueList {
-    list-style: none;
-    padding: 0;
+.left-sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-#queueList li {
-    padding: 8px 5px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis;
-    transition: background-color 0.2s ease;
+.left-sidebar-header .logo {
+    font-size: 1.5rem;
 }
 
-#queueList li:hover {
-    background-color: #334155;
-    border-radius: 4px;
-}
-
-#queueList li.active {
-    font-weight: 600;
-    color: #c084fc;
-}
-
-#navSettings {
-    width: 100%;
-    padding: 8px;
-    margin-top: 10px;
-    background: #334155;
-    color: white;
+.left-sidebar-header .close-btn {
+    background: none;
     border: none;
-    border-radius: 6px;
+    color: #cbd5e1;
+    font-size: 2rem;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: color 0.2s ease;
 }
 
-#navSettings:hover {
-    background: #475569;
+.left-sidebar-header .close-btn:hover {
+    color: white;
+}
+
+.left-sidebar-menu {
+    list-style: none;
+    padding: 10px 0;
+}
+
+.left-sidebar-menu li {
+    padding: 15px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #cbd5e1;
+}
+
+.left-sidebar-menu li:hover {
+    background-color: rgba(99, 102, 241, 0.3);
+    color: white;
+}
+
+.left-sidebar-menu li.active {
+    background-color: rgba(99, 102, 241, 0.5);
+    color: white;
+    border-left: 4px solid #818cf8;
+}
+
+.left-sidebar-content {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+    display: none; /* Hidden by default, shown on smaller screens */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 1001;
+    padding: 5px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none; /* Hide original sidebar on small screens */
+    }
+    .hamburger-menu {
+        display: block; /* Show hamburger menu */
+    }
+    .container {
+        margin-left: 20px; /* Reset margin for small screens */
+        max-width: calc(100% - 40px);
+    }
 }
 
 /* --- !! Gaya Modal (Pop-up) !! --- */

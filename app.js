@@ -27,29 +27,13 @@ const closeModalBtn = document.getElementById("closeModalBtn");
 const playerAlbumTrigger = document.getElementById("playerAlbumTrigger");
 
 // !! BARU: Sidebar Elements !!
-const rightSidebar = document.getElementById("rightSidebar");
-const queueList = document.getElementById("queueList");
+const leftSidebar = document.getElementById("leftSidebar");
+const sidebarContent = document.getElementById("sidebarContent");
+const navTrending = document.getElementById("navTrending");
+const navPlaylist = document.getElementById("navPlaylist");
+const navHistory = document.getElementById("navHistory");
 
 // !! BARU: Auth Elements !!
-const authModal = document.getElementById("authModal");
-const closeAuthModalBtn = document.getElementById("closeAuthModalBtn");
-const authForm = document.getElementById("authForm");
-const authTitle = document.getElementById("authTitle");
-const toggleAuthMode = document.getElementById("toggleAuthMode");
-const authUsername = document.getElementById("authUsername");
-const authPassword = document.getElementById("authPassword");
-const authPreference = document.getElementById("authPreference");
-const registerFields = document.getElementById("registerFields");
-const authBtn = document.getElementById("authBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const userGreeting = document.getElementById("userGreeting");
-
-// !! BARU: History Elements !!
-const historySection = document.getElementById("historySection");
-const historyResults = document.getElementById("historyResults");
-const clearHistoryBtn = document.getElementById("clearHistoryBtn");
-
-// === Inisialisasi YouTube Player ===
 function onYouTubeIframeAPIReady() {
     console.log("YouTube API is Ready");
 function onPlayerReady() {
@@ -151,33 +135,24 @@ function displayResults(items) {
     });
 }
 
-// === BARU: Fungsi untuk mengupdate Sidebar Antrian ===
-function updateQueueSidebar() {
-    queueList.innerHTML = ''; 
-    
-    if (currentQueue.length === 0) {
-        rightSidebar.style.display = 'none';
-        return;
-    }
-
-    rightSidebar.style.display = 'block';
-
-    // Tampilkan 5 lagu berikutnya (atau semua jika kurang dari 5)
-    currentQueue.slice(currentIndex, currentIndex + 5).forEach((video, index) => {
-        const li = document.createElement('li');
-        const globalIndex = currentIndex + index;
-        
-        li.textContent = video.snippet.title;
-        li.onclick = () => playTrack(globalIndex);
-        
-        // Tandai lagu yang sedang diputar
-        if (index === 0) {
-            li.classList.add('active');
-        }
-        queueList.appendChild(li);
-    });
+// Side-bar mobile toggle logic
+const hamburgerMenu = document.querySelector('.hamburger-menu');
+if (hamburgerMenu) {
+    hamburgerMenu.addEventListener('click', () => {
+        leftSidebar.classList.toggle('open');
+    });
 }
 
+// Close sidebar on mobile when a link is clicked
+[navTrending, navPlaylist, navHistory].forEach(nav => {
+    nav.addEventListener('click', () => {
+        if(window.innerWidth <= 768) {
+             leftSidebar.classList.remove('open');
+        }
+    });
+});
+
+// Fungsi updateQueueSidebar() Dihapus
 
 // === Fungsi Kontrol Player ===
 function playTrack(index) {
@@ -207,8 +182,8 @@ function playTrack(index) {
     playerBar.dataset.cleanTitle = video.snippet.title.toUpperCase(); 
     playerBar.style.display = 'flex';
     
-    // Update Sidebar Antrian
-    updateQueueSidebar();
+    // Check if liked
+    updateLikeButtonState(video.id.videoId);
 }
 
 function togglePlayPause() {
@@ -318,19 +293,14 @@ nextBtn.addEventListener("click", playNext);
 prevBtn.addEventListener("click", playPrevious);
 
 // Modal Listeners
-playerAlbumTrigger.addEventListener("click", openModal);
+document.getElementById("lyricsBtn").addEventListener("click", openModal);
 closeModalBtn.addEventListener("click", closeModal);
 
-// (Opsional) Tutup modal jika klik di luar
+// Tutup modal jika klik di luar
 videoModal.addEventListener('click', (event) => {
     if (event.target === videoModal) {
         closeModal();
     }
-});
-
-// Event listener untuk tombol Settings di Sidebar
-document.getElementById("navSettings").addEventListener('click', () => {
-    alert("Fungsi pengaturan belum diimplementasikan.");
 });
 
 // === MOCK AUTHENTICATION & SECURITY LOGIC ===
@@ -477,55 +447,153 @@ if (authModal) {
     });
 }
 
-// === HISTORY & DEFAULT VIDEOS LOGIC ===
+// === PLAYLIST (LIKES) & SIDEBAR ROUTING LOGIC ===
+const getPlaylist = () => JSON.parse(localStorage.getItem('ytPlaylist')) || [];
+const savePlaylist = (list) => localStorage.setItem('ytPlaylist', JSON.stringify(list));
+
+const likeBtn = document.getElementById("likeBtn");
+if (likeBtn) {
+    likeBtn.addEventListener('click', () => {
+        if (currentQueue.length > 0) {
+            const currentVideo = currentQueue[currentIndex];
+            let list = getPlaylist();
+            const exists = list.findIndex(v => v.id.videoId === currentVideo.id.videoId);
+            if (exists >= 0) {
+                list.splice(exists, 1);
+                likeBtn.classList.remove('liked');
+                likeBtn.querySelector('i').classList.replace('fas', 'far');
+            } else {
+                list.unshift(currentVideo);
+                likeBtn.classList.add('liked');
+                likeBtn.querySelector('i').classList.replace('far', 'fas');
+            }
+            savePlaylist(list);
+            
+            // Perbarui sidebar seketika jika tab Playlist sedang aktif
+            if (navPlaylist.classList.contains('active')) {
+                renderSidebarList(getPlaylist(), "Playlist Kosong. Tambahkan lagu yang kamu suka!");
+            }
+        }
+    });
+}
+
+function updateLikeButtonState(videoId) {
+    if(!likeBtn) return;
+    const list = getPlaylist();
+    const isLiked = list.some(v => v.id.videoId === videoId);
+    if(isLiked){
+        likeBtn.classList.add('liked');
+        likeBtn.querySelector('i').classList.replace('far', 'fas');
+    }else{
+        likeBtn.classList.remove('liked');
+        likeBtn.querySelector('i').classList.replace('fas', 'far');
+    }
+}
+
+// === HISTORY LOGIC ===
 const loadHistory = () => JSON.parse(localStorage.getItem('ytHistory')) || [];
 const saveHistory = (history) => localStorage.setItem('ytHistory', JSON.stringify(history));
 
 function addToHistory(video) {
     let history = loadHistory();
-    // Hapus jika sudah ada (untuk dipindah ke atas)
     history = history.filter(v => v.id.videoId !== video.id.videoId);
     history.unshift(video);
-    if (history.length > 20) history.pop(); // Batasi max 20 video riwayat
+    if (history.length > 30) history.pop(); 
     saveHistory(history);
-    updateHistoryUI();
+    
+    // Perbarui otomatis jika sedang di tab History
+    if (navHistory.classList.contains('active')) {
+        renderSidebarList(loadHistory(), "Belum ada riwayat tontonan.");
+    }
 }
 
-function updateHistoryUI() {
-    if (!historySection || !historyResults) return;
-    const history = loadHistory();
-    if (history.length === 0) {
-        historySection.style.display = 'none';
+function renderSidebarList(items, emptyMsg) {
+    sidebarContent.innerHTML = '';
+    
+    if(items.length === 0){
+        sidebarContent.innerHTML = `<p style="padding:15px; color:#94a3b8; font-size:0.9rem; text-align:center;">${emptyMsg}</p>`;
         return;
     }
-    historySection.style.display = 'block';
-    historyResults.innerHTML = '';
-    history.forEach((video) => {
+    
+    items.forEach(video => {
         const div = document.createElement("div");
-        div.className = "video-card glass-effect ripple-btn";
-        div.style.width = "200px";
+        div.className = "sidebar-video-item ripple-btn";
         div.innerHTML = `
-            <img src="${video.snippet.thumbnails.medium.url}" class="thumbnail" alt="${video.snippet.title}" onerror="this.onerror=null; this.src='https://placehold.co/200x110/1e293b/cbd5e1?text=No+Image';">
+            <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" onerror="this.onerror=null; this.src='https://placehold.co/60x34/1e293b/cbd5e1';">
             <h4>${video.snippet.title}</h4>
         `;
         div.onclick = () => {
             currentQueue = [video];
             playTrack(0);
         };
-        historyResults.appendChild(div);
+        sidebarContent.appendChild(div);
     });
 }
 
-if (clearHistoryBtn) {
-    clearHistoryBtn.addEventListener('click', () => {
-        localStorage.removeItem('ytHistory');
-        updateHistoryUI();
-    });
+function setActiveNav(selectedNav) {
+    [navTrending, navPlaylist, navHistory].forEach(nav => nav.classList.remove('active'));
+    selectedNav.classList.add('active');
 }
+
+// Event Listeners for Sidebar Tabs
+navTrending.addEventListener('click', () => {
+    setActiveNav(navTrending);
+    sidebarContent.innerHTML = '<p style="padding:15px; text-align:center; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
+    // Gunakan fungsi pencarian dengan query statik atau hit API trending
+    // Karena API search normal tidak murni trending, kita spoof dengan query populer
+    searchVideos("indonesia populer music hits official");
+    // Setelah render di main container, kita juga bisa tampilkan sekilas (misal 5 teratas) di sidebar
+    setTimeout(()=>{
+        renderSidebarList(currentQueue.slice(0, 5), "Tidak ada trending.");
+    }, 1500);
+});
+
+navPlaylist.addEventListener('click', () => {
+    setActiveNav(navPlaylist);
+    renderSidebarList(getPlaylist(), "Playlist kamu masih kosong. Tekan tombol <i class='far fa-heart'></i> pada pemutar.");
+});
+
+navHistory.addEventListener('click', () => {
+    setActiveNav(navHistory);
+    sidebarContent.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 5px 10px; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1);">
+            <span style="font-size:0.8rem; color:#94a3b8;">Baru saja diputar</span>
+            <button id="clearHistoryBtn" style="background:#e11d48; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer;">Hapus</button>
+        </div>
+    `;
+    
+    // Bind the inner clear history button
+    document.getElementById("clearHistoryBtn").addEventListener('click', () => {
+        localStorage.removeItem('ytHistory');
+        renderSidebarList([], "Belum ada riwayat tontonan.");
+    });
+    
+    // Render the rest of history
+    const historyItems = loadHistory();
+    const listContainer = document.createElement("div");
+    sidebarContent.appendChild(listContainer);
+    
+    if(historyItems.length === 0){
+        listContainer.innerHTML = `<p style="padding:15px; color:#94a3b8; font-size:0.9rem; text-align:center;">Belum ada riwayat tontonan.</p>`;
+    } else {
+        historyItems.forEach(video => {
+            const div = document.createElement("div");
+            div.className = "sidebar-video-item ripple-btn";
+            div.innerHTML = `
+                <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" onerror="this.onerror=null; this.src='https://placehold.co/60x34/1e293b/cbd5e1';">
+                <h4>${video.snippet.title}</h4>
+            `;
+            div.onclick = () => {
+                currentQueue = [video];
+                playTrack(0);
+            };
+            listContainer.appendChild(div);
+        });
+    }
+});
 
 // Init on page load
 function initApp() {
-    updateHistoryUI();
     // Load default videos instead of empty screen
     if (!searchInput.value) {
         searchVideos("trending music video hits indonesia");
