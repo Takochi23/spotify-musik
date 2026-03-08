@@ -369,10 +369,10 @@ body {
 
 @media (max-width: 768px) {
     .left-sidebar {
-        top: 0;
+        top: 60px; /* Prevent covering the navbar and hamburger menu */
         left: -240px; /* Hide sidebar on small screens initially */
         width: 240px;
-        height: 100vh;
+        height: calc(100vh - 60px - 100px);
         z-index: 2000;
         transition: left 0.3s ease;
         /* background-color diatur via glass-effect */

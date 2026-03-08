@@ -607,11 +607,9 @@ navHistory.addEventListener('click', () => {
         <div id="dynamicListContainer"></div>
     `;
     
-    // Bind the inner clear history button
+    // Bind the inner clear history button to close and return
     document.getElementById("clearAndCloseBtn").addEventListener('click', () => {
-        localStorage.removeItem('ytHistory');
-        const listC = document.getElementById("dynamicListContainer");
-        listC.innerHTML = `<p style="padding:15px; color:#aaa; font-size:0.9rem; text-align:center;">Belum ada riwayat tontonan.</p>`;
+        navTrending.click();
     });
     
     // Temporary redirect the container
