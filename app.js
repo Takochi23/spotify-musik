@@ -43,6 +43,12 @@ const registerFields = document.getElementById("registerFields");
 const authBtn = document.getElementById("authBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const userGreeting = document.getElementById("userGreeting");
+
+// !! BARU: History Elements !!
+const historySection = document.getElementById("historySection");
+const historyResults = document.getElementById("historyResults");
+const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+
 // === Inisialisasi YouTube Player ===
 function onYouTubeIframeAPIReady() {
     console.log("YouTube API is Ready");
@@ -85,9 +91,10 @@ volumeSlider.addEventListener("input", () => {
 
 
 // === Fungsi Pencarian ===
-async function searchVideos() {
-    const queryBase = searchInput.value;
-    if (!queryBase) return; // Tidak perlu alert
+async function searchVideos(customQuery = null) {
+    // Use custom parameter if provided, else use input value. Skip alert if both empty.
+    const queryBase = customQuery !== null && typeof customQuery === 'string' ? customQuery : searchInput.value;
+    if (!queryBase) return; 
     
     // Adjust algorithm parameter based on logged in user's preference
     let algorithmAddon = "";
@@ -185,6 +192,11 @@ function playTrack(index) {
     
     currentIndex = index;
     const video = currentQueue[currentIndex];
+
+    // Tambahkan ke History Tontonan
+    if (typeof addToHistory === 'function') {
+        addToHistory(video);
+    }
 
     // Load video baru dan langsung putar (autoplay)
     player.loadVideoById(video.id.videoId, 0, 'small'); // Kualitas audio rendah untuk efisiensi
@@ -464,3 +476,61 @@ if (authModal) {
         }
     });
 }
+
+// === HISTORY & DEFAULT VIDEOS LOGIC ===
+const loadHistory = () => JSON.parse(localStorage.getItem('ytHistory')) || [];
+const saveHistory = (history) => localStorage.setItem('ytHistory', JSON.stringify(history));
+
+function addToHistory(video) {
+    let history = loadHistory();
+    // Hapus jika sudah ada (untuk dipindah ke atas)
+    history = history.filter(v => v.id.videoId !== video.id.videoId);
+    history.unshift(video);
+    if (history.length > 20) history.pop(); // Batasi max 20 video riwayat
+    saveHistory(history);
+    updateHistoryUI();
+}
+
+function updateHistoryUI() {
+    if (!historySection || !historyResults) return;
+    const history = loadHistory();
+    if (history.length === 0) {
+        historySection.style.display = 'none';
+        return;
+    }
+    historySection.style.display = 'block';
+    historyResults.innerHTML = '';
+    history.forEach((video) => {
+        const div = document.createElement("div");
+        div.className = "video-card glass-effect ripple-btn";
+        div.style.width = "200px";
+        div.innerHTML = `
+            <img src="${video.snippet.thumbnails.medium.url}" class="thumbnail" alt="${video.snippet.title}" onerror="this.onerror=null; this.src='https://placehold.co/200x110/1e293b/cbd5e1?text=No+Image';">
+            <h4>${video.snippet.title}</h4>
+        `;
+        div.onclick = () => {
+            currentQueue = [video];
+            playTrack(0);
+        };
+        historyResults.appendChild(div);
+    });
+}
+
+if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', () => {
+        localStorage.removeItem('ytHistory');
+        updateHistoryUI();
+    });
+}
+
+// Init on page load
+function initApp() {
+    updateHistoryUI();
+    // Load default videos instead of empty screen
+    if (!searchInput.value) {
+        searchVideos("trending music video hits indonesia");
+    }
+}
+
+// Jalankan saat semua selesai
+window.addEventListener('DOMContentLoaded', initApp);

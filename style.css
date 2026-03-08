@@ -22,7 +22,7 @@ body {
     display: flex; 
     justify-content: space-between; 
     align-items: center;
-    padding: 15px 30px; 
+    padding: 10px 20px; 
     background: rgba(30, 41, 59, 0.6);
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
@@ -101,6 +101,7 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     animation: fadeIn 0.5s ease-out forwards;
+    flex: 0 0 auto;
 }
 
 @keyframes fadeIn {
@@ -127,6 +128,23 @@ body {
     white-space: nowrap; 
     overflow: hidden; 
     text-overflow: ellipsis;
+}
+
+/* Hover styles untuk Horizontal Scroll History */
+#historyResults {
+    scrollbar-width: thin;
+    scrollbar-color: #6366f1 #1e293b;
+}
+#historyResults::-webkit-scrollbar {
+    height: 8px;
+}
+#historyResults::-webkit-scrollbar-track {
+    background: #1e293b;
+    border-radius: 4px;
+}
+#historyResults::-webkit-scrollbar-thumb {
+    background-color: #6366f1;
+    border-radius: 4px;
 }
 
 /* --- Player Bar (Diperbesar) --- */
