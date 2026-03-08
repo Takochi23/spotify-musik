@@ -602,7 +602,7 @@ navHistory.addEventListener('click', () => {
     sidebarContent.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 5px; margin-bottom: 10px; border-bottom: 1px solid #3f3f3f;">
             <span style="font-weight:600;"><i class="fas fa-history"></i> Histori</span>
-            <button id="clearAndCloseBtn" style="background:#e11d48; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer;">Hapus</button>
+            <button id="clearAndCloseBtn" style="background:none; color:white; border:none; cursor:pointer;" title="Hapus Histori"><i class="fas fa-times"></i></button>
         </div>
         <div id="dynamicListContainer"></div>
     `;
