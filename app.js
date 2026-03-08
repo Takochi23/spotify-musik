@@ -135,11 +135,25 @@ function displayResults(items) {
     });
 }
 
-// Side-bar mobile toggle logic
+// Side-bar toggle logic (Desktop + Mobile)
 const hamburgerMenu = document.querySelector('.hamburger-menu');
+const mainContainer = document.querySelector('.container');
+
 if (hamburgerMenu) {
     hamburgerMenu.addEventListener('click', () => {
-        leftSidebar.classList.toggle('open');
+        if (window.innerWidth <= 768) {
+            // Mobile behavior: sidebar overlays content
+            leftSidebar.classList.toggle('open');
+            // Remove desktop classes just in case
+            leftSidebar.classList.remove('closed');
+            mainContainer.classList.remove('expanded');
+        } else {
+            // Desktop behavior: sidebar pushes/pulls main container
+            leftSidebar.classList.toggle('closed');
+            mainContainer.classList.toggle('expanded');
+            // Remove mobile classes just in case
+            leftSidebar.classList.remove('open');
+        }
     });
 }
 

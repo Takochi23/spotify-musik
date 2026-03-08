@@ -25,6 +25,12 @@ body {
     display: flex;
     flex-direction: column;
     padding-right: 5px;
+    transition: left 0.3s ease;
+}
+
+/* State for Desktop when toggled closed */
+.left-sidebar.closed {
+    left: -240px;
 }
 
 /* Kustom scrollbar untuk sidebar mirip YouTube */
@@ -147,6 +153,13 @@ body {
     max-width: calc(100% - 240px); 
     margin: 20px 0 20px 240px; /* Offset for left sidebar */
     padding: 0 40px; 
+    transition: margin-left 0.3s ease, max-width 0.3s ease;
+}
+
+/* State for Container when Sidebar is closed (Desktop) */
+.container.expanded {
+    margin-left: 0;
+    max-width: 100%;
 }
 
 .navbar {
@@ -338,7 +351,7 @@ body {
 
 /* Hamburger Menu & Responsiveness */
 .hamburger-menu {
-    display: none; /* Hidden by default on desktop */
+    display: block; /* Always visible for interactivity */
     background: none;
     border: none;
     color: white;
@@ -346,26 +359,29 @@ body {
     cursor: pointer;
     z-index: 1001;
     margin-right: 15px;
+    padding: 5px;
+}
+
+.hamburger-menu:hover {
+    color: #a0a0a0;
 }
 
 @media (max-width: 768px) {
-    .hamburger-menu {
-        display: block; /* Show hamburger menu */
-    }
     .left-sidebar {
         top: 0;
-        left: -240px; /* Hide original sidebar on small screens */
+        left: -240px; /* Hide sidebar on small screens initially */
         width: 240px;
         height: 100vh;
         z-index: 2000;
         transition: left 0.3s ease;
         background-color: #0f0f0f !important;
     }
+    /* State for Mobile when toggled open */
     .left-sidebar.open {
         left: 0;
     }
-    .container {
-        margin-left: 0; /* Reset margin for small screens */
+    .container, .container.expanded {
+        margin-left: 0; /* Always 0 on mobile */
         max-width: 100%;
         padding: 0 15px;
     }
