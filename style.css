@@ -20,12 +20,12 @@ body {
     width: 240px;
     height: calc(100vh - 60px - 100px); /* Kurangi navbar dan player */
     /* background-color diatur via .glass-effect */
-    z-index: 1000;
+    z-index: 999;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     padding-right: 5px;
-    padding-top: 10px;
+    padding-top: 16px; /* Ruang agar menu tidak tertabrak tombol hamburger */
     transition: left 0.3s ease;
 }
 
@@ -358,9 +358,10 @@ body {
     color: white;
     font-size: 1.5rem;
     cursor: pointer;
-    z-index: 1001;
+    z-index: 1100; /* Di atas sidebar */
     margin-right: 15px;
     padding: 5px;
+    position: relative; /* Pastikan z-index berlaku */
 }
 
 .hamburger-menu:hover {
@@ -373,7 +374,7 @@ body {
         left: -240px; /* Hide sidebar on small screens initially */
         width: 240px;
         height: calc(100vh - 60px - 100px);
-        z-index: 2000;
+        z-index: 1050; /* Di bawah hamburger (1100) tapi di atas konten */
         transition: left 0.3s ease;
         /* background-color diatur via glass-effect */
     }
