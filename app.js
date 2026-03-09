@@ -575,11 +575,11 @@ navPlaylist.addEventListener('click', () => {
     setActiveNav(navPlaylist);
     toggleDynamicSidebar(true);
     
-    // Header to go back
+    // Header with back button
     sidebarContent.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 5px; margin-bottom: 10px; border-bottom: 1px solid #3f3f3f;">
             <span style="font-weight:600;"><i class="fas fa-list-ul"></i> Playlist Saya</span>
-            <button id="closeDynamicBtn" style="background:none; color:white; border:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+            <button id="closeDynamicBtn" title="Kembali ke Beranda" style="background:none; color:white; border:none; cursor:pointer; font-size:1.1rem;"><i class="fas fa-times"></i></button>
         </div>
         <div id="dynamicListContainer"></div>
     `;
@@ -588,11 +588,26 @@ navPlaylist.addEventListener('click', () => {
         navTrending.click(); // go back to home
     });
     
-    // Temporary redirect the container
-    const oldContainer = sidebarContent;
-    sidebarContent = document.getElementById("dynamicListContainer");
-    renderSidebarList(getPlaylist(), "Playlist kamu masih kosong. Tekan tombol <i class='far fa-heart'></i> pada pemutar.");
-    sidebarContent = oldContainer; // restore global ref
+    // Render playlist into the inner container, using full playlist as queue
+    const playlist = getPlaylist();
+    const listContainer = document.getElementById("dynamicListContainer");
+    if (playlist.length === 0) {
+        listContainer.innerHTML = `<p style="padding:15px; color:#94a3b8; font-size:0.9rem; text-align:center;">Playlist kamu masih kosong. Tekan tombol <i class='far fa-heart'></i> pada pemutar.</p>`;
+    } else {
+        playlist.forEach((video, index) => {
+            const div = document.createElement("div");
+            div.className = "sidebar-video-item ripple-btn";
+            div.innerHTML = `
+                <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" onerror="this.onerror=null; this.src='https://placehold.co/60x34/1e293b/cbd5e1';">
+                <h4>${video.snippet.title}</h4>
+            `;
+            div.onclick = () => {
+                currentQueue = playlist; // set full playlist as queue
+                playTrack(index);
+            };
+            listContainer.appendChild(div);
+        });
+    }
 });
 
 navHistory.addEventListener('click', () => {
@@ -602,21 +617,36 @@ navHistory.addEventListener('click', () => {
     sidebarContent.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 5px; margin-bottom: 10px; border-bottom: 1px solid #3f3f3f;">
             <span style="font-weight:600;"><i class="fas fa-history"></i> Histori</span>
-            <button id="clearAndCloseBtn" style="background:none; color:white; border:none; cursor:pointer;" title="Hapus Histori"><i class="fas fa-times"></i></button>
+            <button id="closeHistoryBtn" title="Kembali ke Beranda" style="background:none; color:white; border:none; cursor:pointer; font-size:1.1rem;"><i class="fas fa-times"></i></button>
         </div>
         <div id="dynamicListContainer"></div>
     `;
     
-    // Bind the inner clear history button to close and return
-    document.getElementById("clearAndCloseBtn").addEventListener('click', () => {
+    // Tombol X: kembali ke beranda
+    document.getElementById("closeHistoryBtn").addEventListener('click', () => {
         navTrending.click();
     });
     
-    // Temporary redirect the container
-    const oldContainer = sidebarContent;
-    sidebarContent = document.getElementById("dynamicListContainer");
-    renderSidebarList(loadHistory(), "Belum ada riwayat tontonan.");
-    sidebarContent = oldContainer; // restore global
+    // Render history into the inner container, using full history as queue
+    const history = loadHistory();
+    const listContainer = document.getElementById("dynamicListContainer");
+    if (history.length === 0) {
+        listContainer.innerHTML = `<p style="padding:15px; color:#94a3b8; font-size:0.9rem; text-align:center;">Belum ada riwayat tontonan.</p>`;
+    } else {
+        history.forEach((video, index) => {
+            const div = document.createElement("div");
+            div.className = "sidebar-video-item ripple-btn";
+            div.innerHTML = `
+                <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" onerror="this.onerror=null; this.src='https://placehold.co/60x34/1e293b/cbd5e1';">
+                <h4>${video.snippet.title}</h4>
+            `;
+            div.onclick = () => {
+                currentQueue = history; // set full history as queue
+                playTrack(index);
+            };
+            listContainer.appendChild(div);
+        });
+    }
 });
 
 // Init on page load
